@@ -1,4 +1,4 @@
-package KetabShow
+package main
 
 import (
 	"encoding/json"
@@ -30,14 +30,19 @@ const (
 )
 
 type Book struct {
-	Title     string
-	Id        string
-	Author    string
-	Filesize  string
-	Extension string
-	Md5       string
-	Year      string
-	Url       string
+	Title       string
+	Id          string
+	Author      string
+	Filesize    string
+	Extension   string
+	Md5         string
+	Year        string
+	Url         string
+	Coverurl    string
+	Language    string
+	Description string
+	Isbn        string
+	Publisher   string
 }
 
 type WriteCounter struct {
@@ -205,8 +210,17 @@ func ParseResponse(data []byte) (book Book) {
 					book.Extension = v
 				case "md5":
 					book.Md5 = v
-				case "year":
-					book.Year = v
+					book.Url = "http://booksdl.org/get.php?md5=" + v
+				case "coverurl":
+					book.Coverurl = v
+				case "language":
+					book.Language = v
+				case "descr":
+					book.Description = v
+				case "identifierwodash":
+					book.Isbn = v
+				case "publisher":
+					book.Publisher = v
 				}
 			}
 		}

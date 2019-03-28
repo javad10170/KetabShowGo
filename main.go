@@ -362,7 +362,7 @@ func Download(w http.ResponseWriter, r *http.Request) {
 			filesize = res.ContentLength
 			counter.Pb = pb.StartNew(int(filesize))
 			w.Header().Set("Content-Disposition", "attachment; filename="+filename)
-			w.Header().Set("Content-Type", "application/pdf")
+			w.Header().Set("Content-Type", "application/octet-stream")
 			w.Header().Set("Content-Length", strconv.FormatInt(filesize, 10))
 			_, err = io.Copy(w, io.TeeReader(res.Body, counter)) //err = io.Copy(w, res.Body)
 

@@ -137,7 +137,7 @@ func GetBookFilename(book Book) (filename string) {
 	return
 }
 
-func DownloadBook(book Book) error {
+func DownloadBook(book Book, w http.ResponseWriter) error {
 	var (
 		filename string
 		filesize int64
@@ -160,7 +160,10 @@ func DownloadBook(book Book) error {
 				return err
 			}
 			defer out.Close()
-			_, err = io.Copy(out, io.TeeReader(res.Body, counter))
+			w.Header().Set("Content-Disposition", "attachment; filename="+filename)
+			w.Header().Set("Content-Type", "application/pdf")
+			w.Header().Set("Content-Length", strconv.FormatInt(filesize, 10))
+			_, err = io.Copy(w, res.Body) //err = io.Copy(w, io.TeeReader(res.Body, counter))
 			if err != nil {
 				return err
 			}
@@ -341,8 +344,31 @@ func Download(w http.ResponseWriter, r *http.Request) {
 	hashes := []string{params["md5"]}
 
 	books := GetDetails(hashes)
-	DownloadBook(books[0])
-	json.NewEncoder(w).Encode(books[0])
+
+	var (
+		filename string
+		filesize int64
+		counter  *WriteCounter
+	)
+
+	filename = GetBookFilename(books[0])
+	counter = &WriteCounter{}
+
+	log.Println("Download Started")
+	if res, err := http.Get(books[0].Url); err == nil {
+		if res.StatusCode == http.StatusOK {
+			defer res.Body.Close()
+
+			filesize = res.ContentLength
+			counter.Pb = pb.StartNew(int(filesize))
+			w.Header().Set("Content-Disposition", "attachment; filename="+filename)
+			w.Header().Set("Content-Type", "application/pdf")
+			w.Header().Set("Content-Length", strconv.FormatInt(filesize, 10))
+			_, err = io.Copy(w, io.TeeReader(res.Body, counter)) //err = io.Copy(w, res.Body)
+
+			log.Printf("[OK] %s\n", filename)
+		}
+	}
 }
 
 func main() {

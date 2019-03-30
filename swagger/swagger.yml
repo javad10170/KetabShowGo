@@ -1,0 +1,68 @@
+swagger: "2.0"
+info:
+  title: Ketabshow Api
+  description: Api for search & download books
+  version: 1.0.0
+  termsOfService: https://ketabshow.com/
+  contact:
+    email: javad10170@hotmail.com
+  license: {}
+basePath: /v1
+paths:
+  /download/{md5}:
+    get:
+      tags:
+      - download
+      description: download book by md5
+      operationId: DownloadController.DownloadBook
+      parameters:
+      - in: path
+        name: md5
+        description: md5 hash book
+        required: true
+        type: string
+      responses:
+        "200":
+          description: file return
+        "403":
+          description: :query is empty
+  /search/{query}/{res}/{page}:
+    get:
+      tags:
+      - search
+      description: find book by title
+      operationId: SearchController.SearchBook
+      parameters:
+      - in: path
+        name: query
+        description: title book
+        required: true
+        type: string
+      - in: path
+        name: res
+        description: item per page
+        required: true
+        type: string
+      - in: path
+        name: page
+        description: page
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/Book'
+        "403":
+          description: :query is empty
+definitions:
+  Book:
+    title: Book
+    type: object
+tags:
+- name: search
+  description: |
+    Search book
+- name: download
+  description: |
+    Download Book
